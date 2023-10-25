@@ -1,0 +1,11 @@
+.toolbox{
+    @apply absolute top-1/2 left-3 translate-y-1/2 flex flex-col justify-center gap-3 p-4 rounded-md;
+    border: 1px solid theme(colors.borderColor);
+    transform: translate(0, -50%);
+    .toolboxItem{
+        @apply flex flex-col items-start gap-2;
+        .toolboxItemText{
+            @apply text-sm;
+        }
+    }
+}

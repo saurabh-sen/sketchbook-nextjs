@@ -1,0 +1,14 @@
+.menu{
+    @apply absolute top-3 left-1/2 flex items-center gap-5 z-10 rounded-md p-1;
+    border: 1px solid theme(colors.borderColor);
+    transform: translate(-50%);
+
+    .menuItem{
+        @apply cursor-pointer p-2;
+
+        &:hover{
+            @apply rounded-md;
+            background-color: theme(colors.background);
+        }
+    }
+}
