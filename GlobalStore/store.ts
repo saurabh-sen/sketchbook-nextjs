@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
-import sketchBoardSlice from '@/components/sketchSlice'
+import menuReducer from '@/components/Menu/MenuSlice'
+import toolboxReducer from "@/components/Toolbox/ToolboxSlice"
 // ...
 
 export const store = configureStore({
   reducer: {
-    sketchBoard: sketchBoardSlice,
+    menu: menuReducer,
+    toolbox: toolboxReducer
   },
 })
 

@@ -6,7 +6,7 @@
     .menuItem{
         @apply cursor-pointer p-2;
 
-        &:hover{
+        &:hover, &.active{
             @apply rounded-md;
             background-color: theme(colors.background);
         }
