@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux'
 import cn from 'classnames'
 
 import { useAppDispatch } from '@/GlobalStore/hooks'
-import { handleActiveMenuClick, handleActionMenuClick, selectActiveMenu } from './MenuSlice'
+import { handleActiveMenuClick, handleActionMenuClick, selectActiveMenu, TActiveMenu, TActionMenu } from './MenuSlice'
 import ClearAll from '@/svgs/ClearAll'
 import styles from './Menu.module.css'
 import Pencil from '@/svgs/Pencil'
@@ -20,11 +20,11 @@ const Menu = () => {
 
     const activeMenu = useSelector(selectActiveMenu);
 
-    const handleActiveMenu = (menuItem: string) => {
+    const handleActiveMenu = (menuItem: TActiveMenu) => {
         dispatch(handleActiveMenuClick(menuItem));
     }
 
-    const handleActionMenu = (menuItem: string) => {
+    const handleActionMenu = (menuItem: TActionMenu) => {
         dispatch(handleActionMenuClick(menuItem));
     }
 

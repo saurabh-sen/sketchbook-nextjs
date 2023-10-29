@@ -2,14 +2,14 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from '../../GlobalStore/store'
 import { MENUITEMS } from '@/utils/constants'
-import { type } from 'os'
 
-type TActiveMenu = typeof MENUITEMS.PENCIL | typeof MENUITEMS.ERASER;
+export type TActiveMenu = typeof MENUITEMS.PENCIL | typeof MENUITEMS.ERASER;
+export type TActionMenu = typeof MENUITEMS.UNDO | typeof MENUITEMS.REDO | typeof MENUITEMS.DOWNLOAD | typeof MENUITEMS.CLEARALL | null;
 
 // Define a type for the slice state
 interface MenuState {
   activeMenu: TActiveMenu;
-  actionMenu: string | null;
+  actionMenu: TActionMenu | null;
 }
 
 // Define the initial state using that type
@@ -26,7 +26,7 @@ export const menuSlice = createSlice({
     handleActiveMenuClick: (state, action: PayloadAction<TActiveMenu>) => {
         state.activeMenu = action.payload;
     },
-    handleActionMenuClick: (state, action: PayloadAction<string>) => {
+    handleActionMenuClick: (state, action: PayloadAction<TActionMenu>) => {
         state.actionMenu = action.payload;
     },
   },
