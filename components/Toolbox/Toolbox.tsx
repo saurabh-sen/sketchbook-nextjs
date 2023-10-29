@@ -4,14 +4,14 @@ import styles from './Toolbox.module.css'
 import { useAppDispatch, useAppSelector } from '@/GlobalStore/hooks'
 import { handleToolboxClick } from './ToolboxSlice'
 import { MENUITEMS } from '@/utils/constants'
-import { selectPencil, selectEraser } from './ToolboxSlice'
 import { selectActiveMenu } from '../Menu/MenuSlice'
+import { RootState } from '@/GlobalStore/store'
 
 const Toolbox = () => {
 
   const dispatch = useAppDispatch();
-  const pencil = useAppSelector(selectPencil);
-  const eraser = useAppSelector(selectEraser);
+  const pencil = useAppSelector((state:RootState) => state.toolbox[MENUITEMS.PENCIL]);
+  const eraser = useAppSelector((state:RootState) => state.toolbox[MENUITEMS.ERASER]);
   const activeMenu = useAppSelector(selectActiveMenu);
 
   const handleColorPicker = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +35,7 @@ const Toolbox = () => {
       }
       <div className={styles.toolboxItem}>
         <h3 className={styles.toolboxItemText}>Pencil Size</h3>
-        <input type="range" min={1} max={10} step={1} className={styles.slider} onChange={handleSize} />
+        <input type="range" min={1} max={activeMenu === "ERASER" ? 100 : 10} step={1} className={styles.slider} onChange={handleSize} value={activeMenu === 'ERASER' ? eraser.size : pencil.size} />
       </div>
     </div>
   )

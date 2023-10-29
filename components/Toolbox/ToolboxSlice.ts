@@ -24,11 +24,11 @@ interface IActionButton {
 const initialState: IToolboxState = {
     [MENUITEMS.PENCIL]: {
         color: '#ff0000',
-        size: 3
+        size: 1
     },
     [MENUITEMS.ERASER]: {
         color: '#ffffff',
-        size: 10
+        size: 1
     },
 };
 
@@ -44,8 +44,5 @@ const toolboxSlice = createSlice({
 });
 
 export const { handleToolboxClick } = toolboxSlice.actions;
-
-export const selectPencil = (state: RootState) => state.toolbox[MENUITEMS.PENCIL];
-export const selectEraser = (state: RootState) => state.toolbox[MENUITEMS.ERASER];
 
 export default toolboxSlice.reducer;
