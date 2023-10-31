@@ -1,8 +1,14 @@
 "use client"
-import { useAppDispatch, useAppSelector } from '@/GlobalStore/hooks';
+
 import React from 'react'
-import { handleActionMenuClick, selectActionMenu, selectActiveMenu } from '../Menu/MenuSlice';
+import { socket } from '@/socket/socket';
+
+import { useAppDispatch, useAppSelector } from '@/GlobalStore/hooks';
+import { TActiveMenu, handleActionMenuClick, handleActiveMenuClick, selectActionMenu, selectActiveMenu } from '../Menu/MenuSlice';
 import { RootState } from '@/GlobalStore/store';
+import { MENUITEMS } from '@/utils/constants';
+import { handleToolboxClick } from '../Toolbox/ToolboxSlice';
+
 
 const SketchBoard = () => {
 
@@ -17,6 +23,7 @@ const SketchBoard = () => {
     const drawingHistory = React.useRef<ImageData[]>([]);
     const currentHistoryIndex = React.useRef<number>(0);
 
+    // handlinng action menu clicks
     React.useEffect(() => {
         const canvas = canvasRef.current as HTMLCanvasElement;
         const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
@@ -32,7 +39,7 @@ const SketchBoard = () => {
                 break;
             case "UNDO":
                 currentHistoryIndex.current--;
-                if (currentHistoryIndex.current < 0){
+                if (currentHistoryIndex.current < 0) {
                     currentHistoryIndex.current = 0;
                     break;
                 };
@@ -41,8 +48,8 @@ const SketchBoard = () => {
                 break;
             case 'REDO':
                 currentHistoryIndex.current++;
-                if (currentHistoryIndex.current >= drawingHistory.current.length){
-                    currentHistoryIndex.current = drawingHistory.current.length-1;
+                if (currentHistoryIndex.current >= drawingHistory.current.length) {
+                    currentHistoryIndex.current = drawingHistory.current.length - 1;
                     break;
                 };
                 const img2 = drawingHistory.current[currentHistoryIndex.current];
@@ -58,16 +65,18 @@ const SketchBoard = () => {
         dispatch(handleActionMenuClick(null));
     }, [actionMenu, dispatch]);
 
+    const setConfig = React.useCallback((ctx: CanvasRenderingContext2D, color: string, size: number) => {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = size;
+    }, [])
+
     React.useEffect(() => {
         const canvas = canvasRef.current as HTMLCanvasElement;
         const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
         if (!ctx) return;
-        const setConfig = () => {
-            ctx.strokeStyle = color;
-            ctx.lineWidth = size;
-        }
-        setConfig();
-    }, [activeMenu, color, size]);
+        socket.emit('changeConfig', { color, size, activeMenu })
+        setConfig(ctx, color, size);
+    }, [color, size, setConfig, activeMenu]);
 
     React.useLayoutEffect(() => {
         if (!canvasRef.current) return;
@@ -90,11 +99,13 @@ const SketchBoard = () => {
         const handleMouseDown = (e: MouseEvent) => {
             shouldDraw.current = true;
             beginDrawing(e.clientX, e.clientY);
+            socket.emit('beginPath', { x: e.clientX, y: e.clientY });
         }
 
         const handleMouseMove = (e: MouseEvent) => {
             if (!shouldDraw.current) return;
             lineDrawing(e.clientX, e.clientY);
+            socket.emit('lineDraw', { x: e.clientX, y: e.clientY });
         }
 
         const handleMouseUp = () => {
@@ -106,19 +117,39 @@ const SketchBoard = () => {
             if (drawingHistory.current.length > 20) {
                 drawingHistory.current = drawingHistory.current.slice(-20);
             }
-            currentHistoryIndex.current = drawingHistory.current.length-1;
+            currentHistoryIndex.current = drawingHistory.current.length - 1;
+        }
+
+        const handleBeginPath = (path: { x: number, y: number }) => {
+            beginDrawing(path.x, path.y);
+        }
+
+        const handleDrawLine = (path: { x: number, y: number }) => {
+            lineDrawing(path.x, path.y);
+        }
+
+        const handleChangeConfig = (data: { color: string, size: number, activeMenu: TActiveMenu }) => {
+            dispatch(handleActiveMenuClick(data.activeMenu));
+            setConfig(ctx, data.color, data.size);
+            dispatch(handleToolboxClick({ tool: data.activeMenu, color: data.color, size: data.size }))
         }
 
         canvas.addEventListener('mousedown', handleMouseDown);
         canvas.addEventListener('mousemove', handleMouseMove);
         canvas.addEventListener('mouseup', handleMouseUp);
+        socket.on('beginPath', handleBeginPath);
+        socket.on('lineDraw', handleDrawLine);
+        socket.on('changeConfig', handleChangeConfig);
 
         return () => {
             canvas.removeEventListener('mousedown', handleMouseDown);
             canvas.removeEventListener('mousemove', handleMouseMove);
             canvas.removeEventListener('mouseup', handleMouseUp);
+            socket.off('beginPath', handleBeginPath);
+            socket.off('lineDraw', handleDrawLine);
+            socket.off('changeConfig', handleChangeConfig);
         }
-    }, []);
+    }, [dispatch, setConfig]);
 
     return (
         <canvas ref={canvasRef}>Canvas is not supported here!</canvas>
