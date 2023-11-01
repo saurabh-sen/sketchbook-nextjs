@@ -1,7 +1,6 @@
+"use client"
 import { io } from "socket.io-client"
 
-const URL: string =
-  process.env.NEXT_PUBLIC_NODE_ENV === "production"
-    ? process.env.NEXT_PUBLIC_SERVER_URL_PROD || ""
-    : process.env.NEXT_PUBLIC_SERVER_URL_DEV || "";
+const URL: string = "52.2.149.85:5000";
+
 export const socket = io(URL);

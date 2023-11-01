@@ -28,8 +28,5 @@ COPY --from=builder /sketchbookBuild/.next ./.next
 COPY --from=builder /sketchbookBuild/public ./public
 COPY --from=builder /sketchbookBuild/next.config.js ./next.config.js
 
-# Expose the port your Next.js application will run on (default is 3000)
-EXPOSE 3000
-
 # Start your Next.js application
 CMD ["yarn", "start"]
