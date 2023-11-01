@@ -21,7 +21,7 @@ COPY --from=builder /sketchbookBuild/package.json package.json
 COPY --from=builder /sketchbookBuild/yarn.lock yarn.lock
 
 # Install production dependencies only
-RUN yarn install --production
+RUN yarn install
 
 # Copy the built application from the builder stage
 COPY --from=builder /sketchbookBuild/.next ./.next
