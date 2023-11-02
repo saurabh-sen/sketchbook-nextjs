@@ -120,6 +120,30 @@ const SketchBoard = () => {
             currentHistoryIndex.current = drawingHistory.current.length - 1;
         }
 
+        const handleTouchStart = (e: TouchEvent) => {
+            shouldDraw.current = true;
+            beginDrawing(e.touches[0].clientX, e.touches[0].clientY);
+            socket.emit('beginPath', { x: e.touches[0].clientX, y: e.touches[0].clientY });
+        }
+
+        const handleTouchMove = (e: TouchEvent) => {
+            if (!shouldDraw.current) return;
+            lineDrawing(e.touches[0].clientX, e.touches[0].clientY);
+            socket.emit('lineDraw', { x: e.touches[0].clientX, y: e.touches[0].clientY });
+        }
+
+        const handleTouchEnd = () => {
+            shouldDraw.current = false;
+            const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            drawingHistory.current.push(img);
+
+            // if drawingHistory stack is goes above 20 images then delete old ones and only store maximum 20.
+            if (drawingHistory.current.length > 20) {
+                drawingHistory.current = drawingHistory.current.slice(-20);
+            }
+            currentHistoryIndex.current = drawingHistory.current.length - 1;
+        }
+
         const handleBeginPath = (path: { x: number, y: number }) => {
             beginDrawing(path.x, path.y);
         }
@@ -134,17 +158,33 @@ const SketchBoard = () => {
             dispatch(handleToolboxClick({ tool: data.activeMenu, color: data.color, size: data.size }))
         }
 
+        // mouse events for desktop
         canvas.addEventListener('mousedown', handleMouseDown);
         canvas.addEventListener('mousemove', handleMouseMove);
         canvas.addEventListener('mouseup', handleMouseUp);
+
+        // touch Events for mobile devices
+        canvas.addEventListener('touchstart', handleTouchStart);
+        canvas.addEventListener('touchmove', handleTouchMove);
+        canvas.addEventListener('touchend', handleTouchEnd);
+
+        // socket events
         socket.on('beginPath', handleBeginPath);
         socket.on('lineDraw', handleDrawLine);
         socket.on('changeConfig', handleChangeConfig);
 
         return () => {
+            // clean up mouse events
             canvas.removeEventListener('mousedown', handleMouseDown);
             canvas.removeEventListener('mousemove', handleMouseMove);
             canvas.removeEventListener('mouseup', handleMouseUp);
+
+            // clean up touch events
+            canvas.removeEventListener('touchstart', handleTouchStart);
+            canvas.removeEventListener('touchmove', handleTouchMove);
+            canvas.removeEventListener('touchend', handleTouchEnd);
+
+            // clean up socket events
             socket.off('beginPath', handleBeginPath);
             socket.off('lineDraw', handleDrawLine);
             socket.off('changeConfig', handleChangeConfig);
