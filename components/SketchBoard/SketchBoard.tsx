@@ -74,7 +74,7 @@ const SketchBoard = () => {
         const canvas = canvasRef.current as HTMLCanvasElement;
         const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
         if (!ctx) return;
-        socket.emit('changeConfig', { color, size, activeMenu })
+        // socket.emit('changeConfig', { color, size, activeMenu })
         setConfig(ctx, color, size);
     }, [color, size, setConfig, activeMenu]);
 
@@ -152,6 +152,7 @@ const SketchBoard = () => {
             lineDrawing(path.x, path.y);
         }
 
+        // there is bug in this idk why but it is not working properly
         const handleChangeConfig = (data: { color: string, size: number, activeMenu: TActiveMenu }) => {
             dispatch(handleActiveMenuClick(data.activeMenu));
             setConfig(ctx, data.color, data.size);
